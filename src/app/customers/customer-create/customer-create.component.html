@@ -1,0 +1,70 @@
+<h1>Nouveau client</h1>
+<form [formGroup]="form" (ngSubmit)="handleSubmit()">
+  <div class="form-group">
+    <input
+      type="text"
+      class="form-control"
+      placeholder="Nom complet"
+      formControlName="fullName"
+      [class.is-invalid]="
+        (submitted || form.controls['fullName'].touched) &&
+        form.controls['fullName'].invalid
+      "
+    />
+    <p class="invalid-feedback" *ngIf="hasError('fullName', 'required')">
+      Le champ nom est obligatoire
+      {{ form.controls["fullName"].invalid }}
+    </p>
+    <p class="invalid-feedback" *ngIf="hasError('fullName', 'minlength')">
+      Le nom doit comporter au moins 10 characters
+    </p>
+    <p class="invalid-feedback">
+      {{ form.controls["fullName"].getError("invalid") }}
+    </p>
+  </div>
+
+  <div class="form-group">
+    <input
+      type="email"
+      class="form-control"
+      placeholder="Adresse email"
+      formControlName="email"
+      [class.is-invalid]="
+        (submitted || form.controls['email'].touched) &&
+        form.controls['email'].invalid
+      "
+    />
+    <p *ngIf="hasError('email', 'required')" class="invalid-feedback">
+      Le champ email est obligatoire
+    </p>
+    <p class="invalid-feedback" *ngIf="hasError('email', 'email')">
+      Le email ne correspond pas au format demandé
+    </p>
+    <p class="invalid-feedback">
+      {{ form.controls["email"].getError("invalid") }}
+    </p>
+  </div>
+
+  <div class="form-group">
+    <input
+      type="text"
+      class="form-control"
+      placeholder="Entreprise / Societé"
+      formControlName="company"
+      [class.is-invalid]="
+        (submitted || form.controls['company'].touched) &&
+        form.controls['company'].invalid
+      "
+    />
+  </div>
+  <p *ngIf="hasError('company', 'required')" class="invalid-feedback">
+    Le champ email est obligatoire
+  </p>
+  <p class="invalid-feedback" *ngIf="hasError('company', 'minlength')">
+    Le email ne correspond pas au format demandé
+  </p>
+  <p class="invalid-feedback">
+    {{ form.controls["company"].getError("invalid") }}
+  </p>
+  <button class="btn btn-success">Enregistrer</button>
+</form>
