@@ -57,14 +57,6 @@
       "
     />
   </div>
-  <p *ngIf="hasError('company', 'required')" class="invalid-feedback">
-    Le champ email est obligatoire
-  </p>
-  <p class="invalid-feedback" *ngIf="hasError('company', 'minlength')">
-    Le email ne correspond pas au format demandé
-  </p>
-  <p class="invalid-feedback">
-    {{ form.controls["company"].getError("invalid") }}
-  </p>
+
   <button class="btn btn-success">Enregistrer</button>
 </form>

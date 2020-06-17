@@ -1,4 +1,11 @@
 <app-navbar></app-navbar>
 <main class="container pt-5">
+  <div class="alert alert-{{ flash.type }}" *ngIf="flash">
+    {{ flash.message }}
+  </div>
+
+  <div class="alert alert-info" *ngIf="loading">
+    En chargement...
+  </div>
   <router-outlet></router-outlet>
 </main>

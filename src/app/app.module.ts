@@ -12,6 +12,13 @@ import { CustomersComponent } from './customers/customers.component';
 import { CustomerEditComponent } from './customers/customer-edit.component';
 import { TokenInterceptor } from './auth/token.interceptor';
 import { CustomerCreateComponent } from './customers/customer-create/customer-create.component';
+import { InvoicesComponent } from './invoices/invoices.component';
+import { InvoiceCreateComponent } from './invoices/invoice-create.component';
+import { InvoiceEditComponent } from './invoices/invoice-edit.component';
+
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+
+import { ToastrModule } from 'ngx-toastr';
 
 @NgModule({
   declarations: [
@@ -22,12 +29,17 @@ import { CustomerCreateComponent } from './customers/customer-create/customer-cr
     CustomersComponent,
     CustomerEditComponent,
     CustomerCreateComponent,
+    InvoicesComponent,
+    InvoiceCreateComponent,
+    InvoiceEditComponent,
   ],
   imports: [
     BrowserModule,
     AppRoutingModule,
     ReactiveFormsModule,
     HttpClientModule,
+    BrowserAnimationsModule,
+    ToastrModule.forRoot(),
   ],
   providers: [
     { provide: HTTP_INTERCEPTORS, useClass: TokenInterceptor, multi: true },

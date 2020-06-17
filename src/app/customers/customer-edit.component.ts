@@ -7,6 +7,7 @@ import { FormGroup, FormControl } from '@angular/forms';
 import { HttpErrorResponse } from '@angular/common/http';
 import { constants } from 'buffer';
 import { ThrowStmt } from '@angular/compiler';
+import { UiService } from '../ui/ui.service';
 
 @Component({
   selector: 'app-customer-edit',
@@ -67,7 +68,8 @@ export class CustomerEditComponent implements OnInit {
   constructor(
     private customersService: CustomersService,
     private route: ActivatedRoute,
-    private router: Router
+    private router: Router,
+    private ui: UiService
   ) {}
 
   ngOnInit(): void {
@@ -90,18 +92,15 @@ export class CustomerEditComponent implements OnInit {
       .update({ ...this.form.value, id: this.customer.id })
       .subscribe(
         (customer) => {
+          this.ui.addFlash(
+            'success',
+            `Le client ${customer.fullName} a bien été enregistré !`
+          );
           this.router.navigateByUrl('/customers');
         },
         (error: HttpErrorResponse) => {
           if (error.status === 400 && error.error.violations) {
-            for (const violation of error.error.violations) {
-              const fieldname = violation.propertyPath;
-              const message = violation.message;
-
-              this.form.controls[fieldname].setErrors({
-                invalid: message,
-              });
-            }
+            this.ui.fillViolationsInForm(this.form, error.error.violations);
           }
         }
       );

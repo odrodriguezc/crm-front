@@ -12,14 +12,11 @@ import { HttpErrorResponse } from '@angular/common/http';
 export class CustomerCreateComponent implements OnInit {
   form = new FormGroup({
     fullName: new FormControl('', [
-      //Validators.required,
-      //Validators.minLength(3),
+      Validators.required,
+      Validators.minLength(3),
     ]),
     email: new FormControl('', [Validators.required, Validators.email]),
-    company: new FormControl('', [
-      Validators.required,
-      Validators.minLength(2),
-    ]),
+    company: new FormControl(''),
   });
 
   submitted: boolean = false;

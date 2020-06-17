@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { CustomersService } from './customers.service';
 import { Customer } from './customer';
+import { UiService } from '../ui/ui.service';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-customers',
@@ -9,7 +11,7 @@ import { Customer } from './customer';
     <a routerLink="/customers/new" class="btn btn-link">Ajouter un client</a>
     <table class="table table-hover">
       <thead>
-        <tr>
+        <tr class="table-dark">
           <th class="text-center">Id</th>
           <th class="text-center">Nom</th>
           <th class="text-center">Email</th>
@@ -50,11 +52,17 @@ import { Customer } from './customer';
 export class CustomersComponent implements OnInit {
   customers: Customer[] = [];
 
-  constructor(private customersService: CustomersService) {}
+  constructor(
+    private customersService: CustomersService,
+    private ui: UiService,
+    private toastr: ToastrService
+  ) {}
 
   ngOnInit(): void {
+    this.ui.setLoading(true);
     this.customersService.findAll().subscribe((customers) => {
       this.customers = customers;
+      this.ui.setLoading(false);
     });
   }
 
@@ -64,12 +72,22 @@ export class CustomersComponent implements OnInit {
     const index = this.customers.indexOf(c);
     this.customers.splice(index, 1);
 
+    this.ui.setLoading(true);
+
     this.customersService.delete(c.id).subscribe(
       () => {
-        ///success
+        this.toastr.success('le Client a bien été supprimé', 'succes');
       },
       (error) => {
         this.customers = customersCopy;
+
+        this.toastr.warning(
+          "Nous n'avons pas pu supprimer le client",
+          'Une erreur est survenue'
+        );
+      },
+      () => {
+        this.ui.setLoading(false);
       }
     );
   }
