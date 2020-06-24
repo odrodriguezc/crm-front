@@ -1,11 +1,15 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Invoice } from './invoice';
 import { InvoicesService } from './invoices.service';
+import { ActivatedRoute, Router } from '@angular/router';
+import { map, switchMap, tap } from 'rxjs/operators';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-invoices',
   template: `
     <h1>Mes Factures</h1>
+    <a routerLink="/invoices/new" class="btn btn-link">Ajouter une facture</a>
     <table class="table table-hover">
       <thead>
         <tr class="table-dark">
@@ -46,17 +50,54 @@ import { InvoicesService } from './invoices.service';
         </tr>
       </tbody>
     </table>
+    <app-pagination
+      [itemsPerPage]="invoices.length"
+      [currentPage]="currentPage"
+      [items]="totalItems"
+      (pageChanged)="handlePageChange($event)"
+    ></app-pagination>
   `,
   styles: [],
 })
-export class InvoicesComponent implements OnInit {
+export class InvoicesComponent implements OnInit, OnDestroy {
   invoices: Invoice[] = [];
-  constructor(private invoicesService: InvoicesService) {}
+  totalItems: number;
+  currentPage = 1;
+
+  invoicesSubscription: Subscription;
+  deleteSubscription: Subscription;
+
+  subscriptions: Subscription[] = [];
+
+  constructor(
+    private invoicesService: InvoicesService,
+    private route: ActivatedRoute,
+    private router: Router
+  ) {}
 
   ngOnInit(): void {
-    this.invoicesService.findAll().subscribe((invoices) => {
-      this.invoices = invoices;
-    });
+    const subscription = this.route.queryParamMap
+      .pipe(
+        map((params) => (params.has('page') ? +params.get('page') : 1)),
+        tap((page) => (this.currentPage = page)),
+        switchMap((page) => this.invoicesService.findAll(page))
+      )
+      .subscribe((paginatedInvoices) => {
+        this.invoices = paginatedInvoices.items;
+        this.totalItems = paginatedInvoices.total;
+      });
+
+    this.subscriptions.push(subscription);
+  }
+
+  ngOnDestroy() {
+    for (const s of this.subscriptions) {
+      s.unsubscribe();
+    }
+  }
+
+  handlePageChange(page: number) {
+    this.router.navigateByUrl('invoices?page=' + page);
   }
 
   handleDelete(i: Invoice) {
@@ -64,7 +105,11 @@ export class InvoicesComponent implements OnInit {
     const index = this.invoices.indexOf(i);
     this.invoices.splice(index, 1);
 
-    this.invoicesService.delete(i.id).subscribe(
+    if (this.deleteSubscription) {
+      this.deleteSubscription.unsubscribe();
+    }
+
+    const subscription = this.invoicesService.delete(i.id).subscribe(
       (invoice) => {
         //TODO: gérer une notification UI
       },
@@ -73,5 +118,7 @@ export class InvoicesComponent implements OnInit {
         //TODO: notification UI
       }
     );
+
+    this.subscriptions.push(subscription);
   }
 }

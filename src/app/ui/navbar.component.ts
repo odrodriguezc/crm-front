@@ -36,7 +36,7 @@ import { Router } from '@angular/router';
           </li>
         </ul>
         <ul class="navbar-nav ml-auto">
-          <ng-container *ngIf="!auth.isAuthenticated()">
+          <ng-container *ngIf="!isAuthenticated">
             <li class="nav-item">
               <a routerLink="/register" class="nav-link">Inscription</a>
             </li>
@@ -44,7 +44,7 @@ import { Router } from '@angular/router';
               <a routerLink="/login" class="btn btn-success">Connexion</a>
             </li>
           </ng-container>
-          <li class="nav-item" *ngIf="auth.isAuthenticated()">
+          <li class="nav-item" *ngIf="isAuthenticated">
             <button class="btn btn-warning" (click)="handleLogout()">
               Deconnexion
             </button>
@@ -56,12 +56,22 @@ import { Router } from '@angular/router';
   styles: [],
 })
 export class NavbarComponent implements OnInit {
+  isAuthenticated = false;
+
   constructor(public auth: AuthService, private route: Router) {}
 
-  ngOnInit(): void {}
+  ngOnInit(): void {
+    this.isAuthenticated = this.auth.isAuthenticated();
+
+    this.auth.authChanged.subscribe((value) => {
+      if (!value && this.isAuthenticated) {
+        this.route.navigateByUrl('/login');
+      }
+      this.isAuthenticated = value;
+    });
+  }
 
   handleLogout() {
     this.auth.logout();
-    this.route.navigateByUrl('/login');
   }
 }

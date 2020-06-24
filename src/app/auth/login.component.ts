@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { AuthService } from './auth.service';
 import { Router } from '@angular/router';
+import { UiService } from '../ui/ui.service';
 
 @Component({
   selector: 'app-login',
@@ -64,7 +65,11 @@ export class LoginComponent implements OnInit {
   submitted: boolean = false;
   error: boolean = false;
 
-  constructor(private auth: AuthService, private router: Router) {}
+  constructor(
+    private auth: AuthService,
+    private router: Router,
+    private ui: UiService
+  ) {}
   ngOnInit(): void {}
 
   handleSubmit() {
@@ -75,10 +80,12 @@ export class LoginComponent implements OnInit {
 
     this.auth.authenticate(this.form.value).subscribe(
       (data) => {
+        this.ui.setLoading(false);
         this.error = false;
         this.router.navigateByUrl('/customers');
       },
       (error) => {
+        this.ui.setLoading(false);
         this.error = true;
       }
     );

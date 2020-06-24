@@ -7,6 +7,7 @@ import { Customer } from '../customers/customer';
 import { map, switchMap } from 'rxjs/operators';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { HttpErrorResponse } from '@angular/common/http';
+import { Observable } from 'rxjs';
 
 @Component({
   selector: 'app-invoice-edit',
@@ -64,7 +65,10 @@ import { HttpErrorResponse } from '@angular/common/http';
           formControlName="customer"
         >
           <option value="">-- Sélectionez un client --</option>
-          <option value="/api/customers/{{ c.id }}" *ngFor="let c of customers">
+          <option
+            value="/api/customers/{{ c.id }}"
+            *ngFor="let c of customers$ | async"
+          >
             {{ c.fullName }}
           </option>
         </select>
@@ -83,6 +87,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 export class InvoiceEditComponent implements OnInit {
   invoice: Invoice;
   customers: Customer[] = [];
+  customers$: Observable<Customer[]>;
   submitted: boolean = false;
 
   form = new FormGroup({
@@ -99,9 +104,8 @@ export class InvoiceEditComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.customersService
-      .findAll()
-      .subscribe((customers) => (this.customers = customers));
+    this.customers$ = this.customersService.findAll();
+    //.subscribe((customers) => (this.customers = customers));
 
     this.route.paramMap
       .pipe(

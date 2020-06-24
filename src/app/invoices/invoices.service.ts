@@ -4,16 +4,32 @@ import { environment } from 'src/environments/environment';
 import { Invoice } from './invoice';
 import { map } from 'rxjs/operators';
 
+export interface PaginatedInvoices {
+  items: Invoice[];
+  total: number;
+  page: number;
+}
+
 @Injectable({
   providedIn: 'root',
 })
 export class InvoicesService {
   constructor(private http: HttpClient) {}
 
-  findAll() {
+  findAll(page: number = 1) {
     return this.http
-      .get<Invoice[]>(environment.apiUrl + '/invoices')
-      .pipe(map((data) => data['hydra:member'] as Invoice[]));
+      .get<PaginatedInvoices>(environment.apiUrl + '/invoices?page=' + page)
+      .pipe(
+        map((data) => {
+          const paginatedInvoices: PaginatedInvoices = {
+            items: data['hydra:member'],
+            total: data['hydra:totalItems'],
+            page: page,
+          };
+
+          return paginatedInvoices;
+        })
+      );
   }
 
   find(id: number) {
